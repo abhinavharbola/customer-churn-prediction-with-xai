@@ -1,6 +1,6 @@
 # Customer Churn XAI Dashboard
 
-This project is an **interactive web application** built with **Streamlit** to predict **customer churn** and — more importantly — to **explain why** a prediction is made using **Explainable AI (XAI)** techniques.
+This project is an **interactive web application** built with **Streamlit** to predict **customer churn** and, more importantly, to **explain why** a prediction is made using **Explainable AI (XAI)** techniques.
 
 The dashboard provides a complete, end-to-end **data science workflow**, from **data exploration** and **model training** to **live prediction** and **model interpretation**.
 
@@ -114,4 +114,5 @@ The app will launch automatically in your default browser.
 
 ## Author
 Developed by **Abhinav Harbola**  
+
 Data Science | Machine Learning | Explainable AI
