@@ -14,7 +14,7 @@ from imblearn.over_sampling import SMOTE
 from imblearn.pipeline import Pipeline as ImbPipeline
 from xgboost import XGBClassifier
 
-# --- Caching Functions for ML Artifacts ---\
+# --- Caching Functions for ML Artifacts ---
 # Use st.cache_data for functions that return serializable data (dataframes, dicts, etc.)
 
 @st.cache_data
@@ -143,16 +143,9 @@ def train_models(_preprocessor, X_train_smote, y_train_smote):
         ('classifier', xgb)
     ])
     
-    # Note: We are fitting these pipelines on the *raw* (non-preprocessed, non-SMOTE)
-    # X_train_smote and y_train_smote are just placeholders from the old logic.
-    # We need the *original* X_train and y_train from get_raw_splits.
-    # Let's fix this logic. We should just train on the SMOTE'd data.
-    
-    # --- REVISED LOGIC ---
     # The `get_processed_data` function *already* gives us the preprocessed, SMOTE'd data.
     # The models should just be the classifiers themselves.
-    # The *preprocessor* artifact will be combined with the *model* artifact
-    # into a *new* pipeline for the final prediction UI.
+    # The preprocessor artifact will be combined with the model artifact into a new pipeline for the final prediction UI.
     
     # 1. Train Logistic Regression on processed, SMOTE'd data
     log_reg.fit(X_train_smote, y_train_smote)
@@ -160,15 +153,13 @@ def train_models(_preprocessor, X_train_smote, y_train_smote):
     # 2. Train XGBoost on processed, SMOTE'd data
     xgb.fit(X_train_smote, y_train_smote)
     
-    # 3. Create the *final, deployable* pipelines
-    # These pipelines include preprocessing AND the *already-trained* classifier.
+    # 3. Create the final, deployable pipelines
+    # These pipelines include preprocessing AND the already-trained classifier.
     # This is what we will use for prediction.
     
-    # This pipeline structure is for *inference*.
-    # For *training*, we'd use ImbPipeline as shown above, but .fit() it
-    # on the *raw* X_train, y_train.
+    # This pipeline structure is for inference
+    # For *training*, we'd use ImbPipeline as shown above, but .fit() it on the *raw* X_train, y_train.
     
-    # Let's stick to the simplest path that works:
     # `train_models` will return pipelines that include preprocessing.
     
     # 1. Logistic Regression Pipeline (for training & inference)
@@ -186,14 +177,9 @@ def train_models(_preprocessor, X_train_smote, y_train_smote):
         ('classifier', XGBClassifier(eval_metric='logloss', random_state=42, base_score=0.5))
     ])
     
-    # We need the raw X_train and y_train for fitting
-    # Let's assume `get_processed_data` provides this (which it doesn't...)
-    # This is getting complex. Let's simplify.
-    
-    # --- SIMPLIFIED AND CORRECTED LOGIC ---
     # `get_processed_data` gives us all we need.
     # `train_models` will just train the models on the processed data
-    # and return the *final pipelines* for inference.
+    # and return the final pipelines for inference.
     
     # 1. Logistic Regression
     log_reg_model = LogisticRegression(max_iter=1000, random_state=42)
@@ -218,18 +204,8 @@ def train_models(_preprocessor, X_train_smote, y_train_smote):
     # The XAI tools will need the *trained model* (xgb_model) and the
     # *processed data* (X_train_smote, X_test_processed)
     # The prediction UI will need the *full pipeline* (final_pipeline_xgb)
-    
-    # Let's adjust the return. We'll return the trained models
-    # and the app will build the pipelines. NO, that's messy.
-    
-    # FINAL ATTEMPT AT `train_models`
-    # This function is cached, it should be simple.
-    # It takes the preprocessor and the training data *it needs*.
-    # It returns the two *inference* pipelines.
-    
-    # We need the *raw* X_train and y_train to fit the ImbPipeline
-    
-    df = load_data("customerchurn.csv") # Quick way to get data
+        
+    df = load_data("customerchurn.csv")
     X_train_raw, _, y_train_raw, _ = get_raw_splits(df)
     
     # 1. Logistic Regression Pipeline
@@ -283,4 +259,5 @@ def get_lime_explainer(X_train_processed_values, feature_names, class_names):
         class_names=class_names,
         mode='classification'
     )
+
     return explainer
