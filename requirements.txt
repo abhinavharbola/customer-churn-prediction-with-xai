@@ -5,5 +5,5 @@ xgboost
 shap
 imbalanced-learn
 matplotlib
-plotly
 lime
+plotly
